@@ -210,7 +210,9 @@ Some key points/tips:
 - When all the arguments of a function are the same type, specifying the type for the last argument is sufficient
 
 # Error handling
-
+- Error data is encapsulated by the `error` type, whose zero-value is `nil` <br> **NOTE**: *An error value being `nil` means no error*
+- By default, Go returns errors as data, rather than stopping program execution
+- The built-in `errors` package contains methods to initialise `error` variables
 
 # User-defined types using `struct`
 ## Introduction
@@ -232,7 +234,7 @@ In Go, a `struct` (short for "structure"):
     - Like pointers, struct-defined types do not need a dereference operator to access the field values <br> I.e.: *If* `myvarp = &myvar`, *then* `myvar.field1` *and* `myvarp.field1` *both obtain the value of* `.field1` <br> (However, using the dereference operator `((*myvarp).field1` is also valid, though unnecessary)
 
 
-## Instantiating a user-defined type variable
+## Initialising a user-defined type variable
 For example, take the following user-defined type:
 
 ```go
@@ -307,8 +309,8 @@ func newMyType(field1, field2 string) *mytype {
 
 Differences lie in the fact that:
 
-- Approach 1 duplicates an instantiated variable and returns it <br> Hence: *Assign it to a variable of type `mytype`*
-- Approach 2 sends the instantiated variable's reference <br> Hence: *Assign it to a pointer of type `mytype`, i.e. a variable of type `*mytype`*
+- Approach 1 duplicates an initialised variable and returns it <br> Hence: *Assign it to a variable of type `mytype`*
+- Approach 2 sends the initialised variable's reference <br> Hence: *Assign it to a pointer of type `mytype`, i.e. a variable of type `*mytype`*
 
 Interestingly, fields and methods of a struct variable can be accessed using the same interface, whether you are using the struct variable itself or a pointer of the corresponding type. In other words, whether `x` is a variable of type `mytype` or type `*mytype`, `x.field1` gives you the value of `field1`.
 
@@ -321,3 +323,8 @@ See: [Exporting programmatic objects](#exporting-programmatic-objects)
 - To expose fields for exports, you must ensure they too start with uppercase
 - It may not always be relevant to expose the fields <br> E.g.: *If fields are to be modified purely via methods*
 - To expose methods for exports, you must ensure they too start with uppercase <br> **NOTE**: *Naturally, this includes the constructor method too*
+
+# User-defined type aliases
+- Existing types can be aliased and defined as a separate type using `type`
+- This allows defining specific methods for a certain purpose
+
