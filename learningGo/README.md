@@ -8,12 +8,13 @@
 
 **Contents**:
 
-- [Why Go?](#why-go)- [Why Go?](#why-go)
+- [Why Go?](#why-go)
 - [How to compile and run a Go program?](#how-to-compile-and-run-a-go-program)
 - [Module](#module)
 - [Packages](#packages)
   - [`main` package as crucial to a module](#main-package-as-crucial-to-a-module)
   - [`main` function as crucial to an executable module](#main-function-as-crucial-to-an-executable-module)
+- [Exporting programmatic objects](#exporting-programmatic-objects)
 - [Variables and types](#variables-and-types)
 - [Variable type conversion and type assignment](#variable-type-conversion-and-type-assignment)
   - [Zero values](#zero-values)
@@ -22,6 +23,18 @@
 - [Functions](#functions)
 - [Error handling](#error-handling)
 - [User-defined types using `struct`](#user-defined-types-using-struct)
+  - [Introduction](#introduction)
+  - [Key points](#key-points)
+  - [Initialising a user-defined type variable](#initialising-a-user-defined-type-variable)
+  - [Creation/constructor function for a user-defined type](#creationconstructor-function-for-a-user-defined-type)
+  - [Exporting a user-defined type and its fields](#exporting-a-user-defined-type-and-its-fields)
+  - [Struct tag](#struct-tag)
+- [User-defined type aliases](#user-defined-type-aliases)
+- [Interfaces](#interfaces)
+  - [Basics](#basics)
+  - [Embedded interfaces](#embedded-interfaces)
+- ["Any value allowed" type](#any-value-allowed-type)
+- [Type switches](#type-switches)
 
 ---
 
@@ -213,6 +226,7 @@ Some key points/tips:
 - Error data is encapsulated by the `error` type, whose zero-value is `nil` <br> **NOTE**: *An error value being `nil` means no error*
 - By default, Go returns errors as data, rather than stopping program execution
 - The built-in `errors` package contains methods to initialise `error` variables
+- The built-in `panic` function ensures the program stops and throws an error <br> **NOTE**: *It takes either a string or an `error` variable as an argument*
 
 # User-defined types using `struct`
 ## Introduction
@@ -324,7 +338,115 @@ See: [Exporting programmatic objects](#exporting-programmatic-objects)
 - It may not always be relevant to expose the fields <br> E.g.: *If fields are to be modified purely via methods*
 - To expose methods for exports, you must ensure they too start with uppercase <br> **NOTE**: *Naturally, this includes the constructor method too*
 
+## Struct tag
+Struct tag is a metadata string attached to a particular field of a `struct` type.
+
+E.g.:
+
+```go
+type mytype struct {
+    field1 string `json:"1st"`
+    field2 string `json:"2nd"`
+}
+```
+
+**NOTE**:
+
+- Struct tags must be enclosed in backticks \`
+- Struct tags only have effect if the code actually picks them and uses them
+- On their own, struct tags do nothing
+
 # User-defined type aliases
 - Existing types can be aliased and defined as a separate type using `type`
 - This allows defining specific methods for a certain purpose
 
+# Interfaces
+## Basics
+An interface in Go is a type that defines a set of methods that must be implemented by any type that should be accessible via this interface. A type can implement more methods than the interface demands, but not less. An example usage:
+
+```go
+import "fmt"
+
+// Interface
+type myinterface interface {
+    Display(int) string
+}
+
+// Struct implementing the above interface
+type mytype struct {
+    field1 string
+    field2 string
+}
+
+func (x mytype) Display(fieldToDisplay int) error {
+    var displayedValue string
+    if fieldToDisplay == 1 {
+        displayedValue = x.field1   
+    }
+    else if fieldToDisplay == 2 {
+        displayedValue = x.field2
+    }
+    else {
+        return ""
+    }
+    fmt.Println(displayedValue)
+    return displayedValue
+}
+```
+
+The above interface can be used to define the type of an argument, instead of the specific `struct` type, and the code will compile and run as expected. In this way, interfaces ensure that type references can be generalised to multiple types that have the same methods (though potentially different implementations); this prevents code duplication and improves readability.
+
+## Embedded interfaces
+If you have interface `interface1` and want to make another interface `interface2` that contains all methods of `interface1` along with additional methods. We can embed `interface1` into `interface2` as follows:
+
+```go
+type interface2 interface {
+    interface1
+    SomeFunction(string) string
+    AnotherFunction(int) int
+}
+```
+
+# "Any value allowed" type
+A type that acts as an interface for any type possible.
+
+How to declare an argument as "any value type"?
+
+**Method 1**:
+
+```go
+func SomeFunction(value interface{}) {
+    ...
+}
+```
+
+**Method 2**:
+
+```go
+func SomeFunction(value any) {
+    ...
+}
+```
+
+**NOTE**: `any` is an alias for `interface{}`.
+
+# Type switches
+**Purpose**: *Specify logic for cases where a certain variable/argument is of a certain type.*
+
+To deal with the variable's type (let's say the variable is `x`), do as follows:
+
+`x.(type)`
+
+Using in switch-case statement:
+
+```go
+switch x.(type) {
+    case int:
+        ...
+    case float64
+        ...
+    case string
+        ...
+}
+
+```
