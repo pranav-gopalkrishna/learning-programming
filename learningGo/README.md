@@ -433,9 +433,11 @@ func SomeFunction(value any) {
 # Type switches
 **Purpose**: *Specify logic for cases where a certain variable/argument is of a certain type.*
 
-To deal with the variable's type (let's say the variable is `x`), do as follows:
+To perform switch-case with the variable's type (let's say the variable is `x`), do as follows:
 
 `x.(type)`
+
+**NOTE**: *This only works within switch-case statements.*
 
 Using in switch-case statement:
 
